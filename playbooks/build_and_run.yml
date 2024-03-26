@@ -1,0 +1,17 @@
+- hosts: all
+  tasks:
+  - name: Build Docker image for Flask app
+    ansible.builtin.shell:
+      cmd: cd /home/vagrant/IVC_ansible/app && docker build -t flask_app:latest .
+
+  - name: Run Flask app container
+    ansible.builtin.shell: 
+      cmd: docker run -d --name flask_app -p 5000:5000 flask_app:latest
+
+  - name: Run MySQL container
+    ansible.builtin.shell: 
+      cmd: docker run --name mysql_db -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=appdb -d mysql:5.7
+
+  - name: Wait for MySQL to be ready
+    ansible.builtin.shell: 
+      cmd: docker exec mysql_db mysqladmin --wait=30 -uuser -ppassword ping

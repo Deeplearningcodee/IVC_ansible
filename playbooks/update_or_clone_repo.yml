@@ -1,0 +1,8 @@
+- hosts: all
+  tasks:
+    - name: Check if repo is cloned
+      git:
+        repo: 'https://github.com/Deeplearningcodee/IVC_ansible.git'
+        dest: '~/IVC_ansible'
+        clone: yes
+        update: yes

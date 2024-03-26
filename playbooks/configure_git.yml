@@ -1,0 +1,22 @@
+- hosts: all
+  vars_prompt:
+    - name: github_user
+      prompt: "Enter your GitHub username"
+      private: no
+
+    - name: github_token
+      prompt: "Enter your GitHub token"
+      private: yes
+
+  tasks:
+    - name: Configure git user
+      git_config:
+        name: user.name
+        value: "{{ github_user }}"
+        scope: global
+
+    - name: Configure git token
+      copy:
+        dest: "~/.git-credentials"
+        content: "https://{{ github_user }}:{{ github_token }}@github.com"
+        mode: '0600'

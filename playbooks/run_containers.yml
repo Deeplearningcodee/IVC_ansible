@@ -1,0 +1,42 @@
+- hosts: all
+  tasks:
+    - name: Pull latest Flask app image
+      ansible.builtin.docker_image:
+        name: "flask_app"
+        tag: "latest"
+        source: pull
+
+    - name: Pull latest MySQL image
+      ansible.builtin.docker_image:
+        name: "mysql"
+        tag: "5.7"
+        source: pull
+
+    - name: Run Flask app container
+      ansible.builtin.docker_container:
+        name: flask_app_container
+        image: flask_app:latest
+        state: started
+        recreate: yes
+        published_ports:
+          - "5000:5000"
+        restart_policy: always
+
+    - name: Ensure MySQL data volume exists
+      ansible.builtin.docker_volume:
+        name: mysql_data_volume
+
+    - name: Run MySQL container
+      ansible.builtin.docker_container:
+        name: mysql_container
+        image: mysql:5.7
+        state: started
+        recreate: yes
+        env:
+          MYSQL_ROOT_PASSWORD: "password"
+          MYSQL_DATABASE: "appdb"
+        volumes:
+          - "mysql_data_volume:/var/lib/mysql"
+        published_ports:
+          - "3306:3306"
+        restart_policy: always

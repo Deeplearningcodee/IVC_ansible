@@ -1,0 +1,46 @@
+- hosts: all
+  become: yes  # Utiliser les privilèges de superutilisateur pour les tâches
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Create directory for static files
+      ansible.builtin.file:
+        path: /www/data
+        state: directory
+        mode: '0755'
+
+    - name: Copy static files to the server
+      ansible.builtin.copy:
+        src: /home/vagrant/IVC_ansible/app/templates/
+        dest: /www/data/
+        mode: '0644'
+        remote_src: yes
+      notify: restart nginx
+
+    - name: Setup Nginx to serve static content
+      ansible.builtin.template:
+        src: nginx_static_site.j2
+        dest: /etc/nginx/sites-available/static_site
+      notify: restart nginx
+
+    - name: Enable the Nginx site configuration
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/static_site
+        dest: /etc/nginx/sites-enabled/static_site
+        state: link
+      notify: restart nginx
+
+    - name: Remove default nginx site symlink
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

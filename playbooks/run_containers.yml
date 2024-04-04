@@ -1,7 +1,13 @@
 - hosts: all
   tasks:
-  - name: Run Docker container
+  - name: Run Docker container for flask app
     ansible.builtin.docker_container:
       name: app-pythonapp-1
       image: app-pythonapp
+      state: started
+      
+  - name: Run Docker container for mysql
+    ansible.builtin.docker_container:
+      name: app-mysql-1
+      image: app-mysql
       state: started

@@ -1,16 +1,13 @@
 - hosts: all
-  become: yes  
   tasks:
     - name: Ensure backup directory exists
       ansible.builtin.file:
         path: "/var/backups/mysql"
         state: directory
-        mode: '0755'  
 
     - name: Setup database backup cron job
       ansible.builtin.cron:
         name: "Backup MySQL Database"
         special_time: "hourly"
-        job: "docker exec mysql_container mysqldump -u root --password=password appdb > /var/backups/mysql/appdb_backup_$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).sql"
+        job: "docker exec app-mysql-1 mysqldump -u root --password=root db > /var/backups/mysql/appdb_backup_$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).sql"
         user: root
-
